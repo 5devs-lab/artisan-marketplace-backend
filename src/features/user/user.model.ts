@@ -12,6 +12,9 @@ export interface IUser extends Document {
   stateOfOrigin?: string;
   nationality?: string;
   address?: string;
+  isVerified: boolean;
+  otp?: string;
+  otpExpires?: Date;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -29,6 +32,9 @@ const UserSchema: Schema = new Schema(
     stateOfOrigin: { type: String },
     nationality: { type: String },
     address: { type: String },
+    isVerified: { type: Boolean, default: false },
+    otp: { type: String },
+    otpExpires: { type: Date },
   },
   {
     timestamps: true,

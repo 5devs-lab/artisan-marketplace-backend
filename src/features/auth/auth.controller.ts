@@ -10,19 +10,20 @@ export class AuthController {
         password
       );
 
-      res.cookie('refreshToken', result.refreshToken, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict',
-        maxAge: 7 * 24 * 60 * 60 * 1000,
-      });
-
-      if (result.user) delete (result.user as any).passwordHash;
-
       res.status(201).json({
-        user: result.user,
-        accessToken: result.accessToken,
+        message: 'Registration successful. Please check your email for a verification code.',
+        email: result.user.email
       });
+    } catch (err: any) {
+      res.status(400).json({ error: err.message });
+    }
+  }
+
+  static async verifyEmail(req: Request, res: Response) {
+    try {
+      const { email, otp } = req.body;
+      await AuthService.verifyOtp(email, otp);
+      res.status(200).json({ message: 'Email verified successfully. You can now login.' });
     } catch (err: any) {
       res.status(400).json({ error: err.message });
     }

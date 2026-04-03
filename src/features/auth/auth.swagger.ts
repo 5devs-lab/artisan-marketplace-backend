@@ -50,9 +50,38 @@
  *                 type: string
  *     responses:
  *       201:
- *         description: User registered successfully
+ *         description: User registered successfully. Verification email sent.
  *       400:
  *         description: Bad request / Password policy failed
+ */
+
+/**
+ * @swagger
+ * /api/auth/verify-email:
+ *   post:
+ *     summary: Verify email using OTP
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - email
+ *               - otp
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 example: dev@kroxt.io
+ *               otp:
+ *                 type: string
+ *                 example: "123456"
+ *     responses:
+ *       200:
+ *         description: Email verified successfully
+ *       400:
+ *         description: Invalid or expired OTP
  */
 
 /**
@@ -83,7 +112,7 @@
  *       401:
  *         description: Invalid credentials
  *       403:
- *         description: IP Banned (Kroxt Defense)
+ *         description: Account not verified / IP Banned
  *       429:
  *         description: Too many attempts
  */
