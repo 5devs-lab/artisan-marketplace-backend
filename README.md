@@ -68,3 +68,26 @@ The project follows a **Feature-Based Folder Structure**:
 - **Secure Sessions**: Refresh tokens are stored in `HttpOnly`, `SameSite=Strict` cookies.
 - **CSRF Mitigation**: Proper CORS and secure cookie configuration.
 - **Credential Protection**: Sensitive fields like `passwordHash` are stripped from all API responses.
+
+---
+
+## 🚀 Deployment (Render)
+
+This project is pre-configured for deployment on [Render](https://render.com) using **Blueprints**.
+
+### Steps to Deploy:
+1.  **Push to GitHub**: Ensure your code is pushed to a GitHub repository.
+2.  **Connect to Render**:
+    - Go to your [Render Dashboard](https://dashboard.render.com).
+    - Click **"New +"** and select **"Blueprint"**.
+    - Connect your GitHub repository.
+3.  **Configure Variables**:
+    - Render will detect the `render.yaml` file.
+    - It will ask you for:
+        - `MONGO_URI`: Your MongoDB Atlas connection string.
+        - `CLIENT_URL`: The URL of your frontend (e.g., `https://your-frontend.onrender.com`).
+    - Note: `JWT_SECRET` and `JWT_PEPPER` will be **automatically generated** for you.
+4.  **Deploy**: Click **"Apply"**.
+
+### Active Server (Free Tier)
+This backend includes a built-in **Cron Job** (pings every 5 minutes in production) to ensure the service remains active and doesn't sleep due to inactivity on Render's free tier.
