@@ -8,6 +8,7 @@ import swaggerSpec from './config/swagger.js';
 import healthRoutes from './features/health/health.routes.js';
 import authRouter from './features/auth/auth.routes.js';
 import userRouter from './features/user/user.routes.js';
+import serviceRouter from './features/service/service.routes.js';
 
 const app = express();
 
@@ -28,6 +29,7 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 app.use('/api/health', healthRoutes);
 app.use('/api/auth', authRouter);
 app.use('/api/users', userRouter);
+app.use('/api/services', serviceRouter);
 
 // Error Handling
 app.use((err: any, req: Request, res: Response, next: NextFunction) => {

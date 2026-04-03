@@ -32,3 +32,12 @@ export const protect = async (req: AuthRequest, res: Response, next: NextFunctio
     res.status(401).json({ error: 'Not authorized, token failed' });
   }
 };
+
+export const restrictTo = (...roles: string[]) => {
+  return (req: AuthRequest, res: Response, next: NextFunction) => {
+    if (!req.user || !roles.includes(req.user.role)) {
+      return res.status(403).json({ error: 'You do not have permission to perform this action' });
+    }
+    next();
+  };
+};
