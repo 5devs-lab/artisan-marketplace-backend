@@ -40,6 +40,14 @@
  *                 type: string
  *               phone:
  *                 type: string
+ *               nin:
+ *                 type: string
+ *               stateOfOrigin:
+ *                 type: string
+ *               nationality:
+ *                 type: string
+ *               address:
+ *                 type: string
  *     responses:
  *       201:
  *         description: User registered successfully

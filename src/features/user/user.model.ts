@@ -3,11 +3,15 @@ import mongoose, { Schema, Document } from "mongoose";
 export interface IUser extends Document {
   email: string;
   passwordHash: string;
-  role: string;
+  role: 'artisan' | 'user' | 'admin';
   gender?: string;
   firstName?: string;
   lastName?: string;
+  nin?: string;
   phone?: string;
+  stateOfOrigin?: string;
+  nationality?: string;
+  address?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -16,13 +20,17 @@ const UserSchema: Schema = new Schema(
   {
     email: { type: String, required: true, unique: true },
     passwordHash: { type: String, required: true },
-    role: { type: String, required: true, default: "user" },
+    role: { type: String, required: true, enum: ['artisan', 'user', 'admin'], default: "user" },
     gender: { type: String },
     firstName: { type: String },
     lastName: { type: String },
+    nin: { type: String },
     phone: { type: String },
+    stateOfOrigin: { type: String },
+    nationality: { type: String },
+    address: { type: String },
   },
-  { 
+  {
     timestamps: true,
     toJSON: {
       transform: (doc, ret) => {
