@@ -11,6 +11,7 @@ interface EnvConfig {
   JWT_SECRET: string;
   JWT_PEPPER: string;
   CLIENT_URL: string;
+  SERVER_URL: string;
   PAYSTACK_SECRET_KEY?: string;
   GMAIL_USER?: string;
   GMAIL_PASS?: string;
@@ -24,12 +25,13 @@ const getEnv = (): EnvConfig => {
     JWT_SECRET: process.env.JWT_SECRET || '',
     JWT_PEPPER: process.env.JWT_PEPPER || '',
     CLIENT_URL: process.env.CLIENT_URL || 'http://localhost:3000',
+    SERVER_URL: process.env.SERVER_URL || '',
     PAYSTACK_SECRET_KEY: process.env.PAYSTACK_SECRET_KEY,
     GMAIL_USER: process.env.GMAIL_USER,
     GMAIL_PASS: process.env.GMAIL_PASS,
   };
 
-  const requiredVars: (keyof EnvConfig)[] = ['MONGO_URI', 'JWT_SECRET', 'JWT_PEPPER'];
+  const requiredVars: (keyof EnvConfig)[] = ['MONGO_URI', 'JWT_SECRET', 'JWT_PEPPER', 'SERVER_URL'];
 
   requiredVars.forEach((key) => {
     if (!envVars[key]) {
