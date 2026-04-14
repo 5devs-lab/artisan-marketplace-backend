@@ -9,6 +9,7 @@ import healthRoutes from './features/health/health.routes.js';
 import authRouter from './features/auth/auth.routes.js';
 import userRouter from './features/user/user.routes.js';
 import serviceRouter from './features/service/service.routes.js';
+import walletRouter from './features/wallet/wallet.routes.js';
 
 const app = express();
 
@@ -30,6 +31,7 @@ app.use('/api/health', healthRoutes);
 app.use('/api/auth', authRouter);
 app.use('/api/users', userRouter);
 app.use('/api/services', serviceRouter);
+app.use('/api/wallet', walletRouter);
 
 // Error Handling
 app.use((err: any, req: Request, res: Response, next: NextFunction) => {
