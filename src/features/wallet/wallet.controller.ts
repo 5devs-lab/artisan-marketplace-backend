@@ -186,9 +186,9 @@ export class WalletController {
   // Release escrow funds (for job completion)
   static async releaseEscrowFunds(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
     try {
-      const { jobId, artisanAmount, commissionAmount, walletId } = req.body;
+      const { jobId, artisanAmount, commissionAmount } = req.body;
 
-      if (!jobId || !artisanAmount || commissionAmount === undefined || !walletId) {
+      if (!jobId || !artisanAmount || commissionAmount === undefined) {
         res.status(400).json({
           success: false,
           message: 'Missing required fields'
@@ -196,8 +196,19 @@ export class WalletController {
         return;
       }
 
+      // Get user's wallet to prevent unauthorized access
+      const userId = req.user._id;
+      const wallet = await WalletService.getUserWallet(userId);
+      if (!wallet) {
+        res.status(404).json({
+          success: false,
+          message: 'Wallet not found'
+        });
+        return;
+      }
+
       const result = await WalletService.releaseEscrowFunds(
-        new Types.ObjectId(walletId),
+        wallet._id,
         new Types.ObjectId(jobId),
         artisanAmount,
         commissionAmount

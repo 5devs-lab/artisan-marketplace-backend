@@ -274,7 +274,7 @@
  * /api/wallet/escrow/release:
  *   post:
  *     summary: Release escrow funds
- *     description: Release escrow funds after job completion (splits into payout and commission)
+ *     description: Release escrow funds after job completion (splits into payout and commission). Wallet ID is automatically derived from authenticated user.
  *     tags: [Wallet]
  *     security:
  *       - bearerAuth: []
@@ -288,7 +288,6 @@
  *               - jobId
  *               - artisanAmount
  *               - commissionAmount
- *               - walletId
  *             properties:
  *               jobId:
  *                 type: string
@@ -304,10 +303,6 @@
  *                 minimum: 0
  *                 description: Platform commission (5%)
  *                 example: 500
- *               walletId:
- *                 type: string
- *                 description: Wallet ID to release funds from
- *                 example: 507f1f77bcf86cd799439012
  *     responses:
  *       200:
  *         description: Funds released successfully
@@ -329,4 +324,6 @@
  *         description: Missing required fields or insufficient escrow balance
  *       401:
  *         description: Unauthorized
+ *       404:
+ *         description: Wallet not found
  */
