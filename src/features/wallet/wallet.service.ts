@@ -1,6 +1,11 @@
 import { Wallet, Transaction, IWallet, ITransaction, TransactionType } from './wallet.models';
 import { Types } from 'mongoose';
 import crypto from 'crypto';
+import paystack from 'paystack';
+import config from '../../config/env.js';
+
+// Initialize Paystack client
+const paystackClient = paystack(config.PAYSTACK_SECRET_KEY || '');
 
 export class WalletService {
   // Create wallet for new user
@@ -257,5 +262,78 @@ export class WalletService {
   static verifyPaystackWebhook(payload: string, signature: string, secret: string): boolean {
     const hash = crypto.createHmac('sha512', secret).update(payload).digest('hex');
     return hash === signature;
+  }
+
+  // Initialize Paystack payment using SDK
+  static async initializePaystackPayment(
+    amount: number,
+    email: string,
+    reference: string,
+    callbackUrl?: string
+  ): Promise<any> {
+    try {
+      const paymentData = {
+        amount: amount * 100, // Convert to kobo
+        email,
+        reference,
+        name: 'Wallet Deposit', // Required by Paystack SDK
+        callback_url: callbackUrl || `${config.CLIENT_URL}/wallet/deposit/success`,
+        metadata: {
+          custom_fields: [
+            {
+              display_name: 'Reference',
+              variable_name: 'reference',
+              value: reference
+            }
+          ]
+        }
+      };
+
+      const response = await paystackClient.transaction.initialize(paymentData);
+      
+      if (response.status) {
+        return response.data;
+      } else {
+        throw new Error(response.message || 'Payment initialization failed');
+      }
+    } catch (error: any) {
+      console.error('Paystack initialization error:', error);
+      throw new Error(error.message || 'Failed to initialize payment');
+    }
+  }
+
+  // Verify payment status using SDK
+  static async verifyPayment(reference: string): Promise<any> {
+    try {
+      const response = await paystackClient.transaction.verify(reference);
+      
+      if (response.status) {
+        return response.data;
+      } else {
+        throw new Error(response.message || 'Payment verification failed');
+      }
+    } catch (error: any) {
+      console.error('Paystack verification error:', error);
+      throw new Error(error.message || 'Failed to verify payment');
+    }
+  }
+
+  // Get transaction status
+  static async getTransactionStatus(transactionId: Types.ObjectId): Promise<ITransaction | null> {
+    try {
+      const transaction = await Transaction.findById(transactionId);
+      return transaction;
+    } catch (error: any) {
+      console.error('Transaction status check error:', error);
+      throw new Error('Failed to get transaction status');
+    }
+  }
+
+  // Generate unique reference
+  static generateReference(userId: Types.ObjectId): string {
+    const timestamp = Date.now();
+    const random = Math.random().toString(36).substring(2, 8);
+    const userIdSuffix = userId.toString().slice(-6);
+    return `DEP_${timestamp}_${random}_${userIdSuffix}`;
   }
 }

@@ -127,7 +127,7 @@
  * /api/wallet/deposit/initialize:
  *   post:
  *     summary: Initialize deposit
- *     description: Initialize a deposit transaction via Paystack
+ *     description: Initialize a deposit transaction via Paystack using enhanced SDK integration
  *     tags: [Wallet]
  *     security:
  *       - bearerAuth: []
@@ -164,10 +164,118 @@
  *                       type: string
  *                     access_code:
  *                       type: string
+ *                     transactionId:
+ *                       type: string
  *       400:
  *         description: Invalid amount
  *       401:
  *         description: Unauthorized
+ */
+
+/**
+ * @swagger
+ * /api/wallet/deposit/verify/{reference}:
+ *   get:
+ *     summary: Verify payment status
+ *     description: Verify the status of a Paystack payment using the reference
+ *     tags: [Wallet]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: reference
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Paystack transaction reference
+ *         example: DEP_1714567890_abc123_456789
+ *     responses:
+ *       200:
+ *         description: Payment verified successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     status:
+ *                       type: string
+ *                     reference:
+ *                       type: string
+ *                     amount:
+ *                       type: number
+ *                     paid_at:
+ *                       type: string
+ *                     customer:
+ *                       type: object
+ *       400:
+ *         description: Invalid reference
+ *       401:
+ *         description: Unauthorized
+ *       404:
+ *         description: Payment not found
+ */
+
+/**
+ * @swagger
+ * /api/wallet/transaction/{transactionId}:
+ *   get:
+ *     summary: Get transaction status
+ *     description: Retrieve the status and details of a specific wallet transaction
+ *     tags: [Wallet]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: transactionId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Wallet transaction ID
+ *         example: 507f1f77bcf86cd799439011
+ *     responses:
+ *       200:
+ *         description: Transaction retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     _id:
+ *                       type: string
+ *                     walletId:
+ *                       type: string
+ *                     amount:
+ *                       type: number
+ *                     type:
+ *                       type: string
+ *                       enum: [DEPOSIT, ESCROW_LOCK, PAYOUT, COMMISSION, REFUND]
+ *                     status:
+ *                       type: string
+ *                       enum: [PENDING, SUCCESS, FAILED]
+ *                     referenceId:
+ *                       type: string
+ *                     metadata:
+ *                       type: object
+ *                     createdAt:
+ *                       type: string
+ *                     updatedAt:
+ *                       type: string
+ *       400:
+ *         description: Invalid transaction ID
+ *       401:
+ *         description: Unauthorized
+ *       404:
+ *         description: Transaction not found
  */
 
 /**

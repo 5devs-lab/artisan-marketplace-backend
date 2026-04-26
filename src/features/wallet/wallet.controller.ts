@@ -77,8 +77,8 @@ export class WalletController {
         const newWallet = await WalletService.createWallet(userId);
       }
 
-      // Generate reference for Paystack
-      const reference = `DEP_${Date.now()}_${userId.toString().slice(-6)}`;
+      // Generate unique reference for Paystack
+      const reference = WalletService.generateReference(userId);
       
       // Create pending transaction
       const transaction = await WalletService.createTransaction(
@@ -89,18 +89,24 @@ export class WalletController {
         `Wallet deposit of ₦${amount}`
       );
 
-      // Initialize Paystack payment
-      const paystackResponse = await initializePaystackPayment(amount, reference, req.user.email);
+      // Initialize Paystack payment using SDK
+      const paystackResponse = await WalletService.initializePaystackPayment(
+        amount,
+        req.user.email,
+        reference
+      );
 
       // Update transaction with Paystack reference
+      transaction.referenceId = new Types.ObjectId(paystackResponse.reference);
       await (transaction as any).save();
 
       res.status(200).json({
         success: true,
         data: {
-          authorization_url: (paystackResponse as any).data.authorization_url,
-          reference: (paystackResponse as any).data.reference,
-          access_code: (paystackResponse as any).data.access_code
+          authorization_url: paystackResponse.authorization_url,
+          reference: paystackResponse.reference,
+          access_code: paystackResponse.access_code,
+          transactionId: transaction._id
         }
       });
     } catch (error) {
@@ -222,48 +228,62 @@ export class WalletController {
       next(error);
     }
   }
-}
 
-// Helper function to initialize Paystack payment
-async function initializePaystackPayment(amount: number, reference: string, email: string) {
-  const https = require('https');
-  const url = 'https://api.paystack.co/transaction/initialize';
+  // Verify payment status
+  static async verifyPayment(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const { reference } = req.params;
+      const referenceStr = Array.isArray(reference) ? reference[0] : reference;
 
-  const params = JSON.stringify({
-    amount: amount * 100, // Convert to kobo
-    email,
-    reference,
-    callback_url: `${config.CLIENT_URL}/wallet/deposit/success`
-  });
+      if (!referenceStr) {
+        res.status(400).json({
+          success: false,
+          message: 'Reference is required'
+        });
+        return;
+      }
 
-  const options = {
-    hostname: 'api.paystack.co',
-    port: 443,
-    path: '/transaction/initialize',
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${config.PAYSTACK_SECRET_KEY}`,
-      'Content-Type': 'application/json',
-      'Content-Length': params.length
+      const paymentData = await WalletService.verifyPayment(referenceStr);
+
+      res.status(200).json({
+        success: true,
+        data: paymentData
+      });
+    } catch (error) {
+      next(error);
     }
-  };
+  }
 
-  return new Promise((resolve, reject) => {
-    const req = https.request(options, (res: any) => {
-      let data = '';
-      res.on('data', (chunk: any) => {
-        data += chunk;
+  // Get transaction status
+  static async getTransactionStatus(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const { transactionId } = req.params;
+      const transactionIdStr = Array.isArray(transactionId) ? transactionId[0] : transactionId;
+
+      if (!transactionIdStr) {
+        res.status(400).json({
+          success: false,
+          message: 'Transaction ID is required'
+        });
+        return;
+      }
+
+      const transaction = await WalletService.getTransactionStatus(new Types.ObjectId(transactionIdStr));
+
+      if (!transaction) {
+        res.status(404).json({
+          success: false,
+          message: 'Transaction not found'
+        });
+        return;
+      }
+
+      res.status(200).json({
+        success: true,
+        data: transaction
       });
-      res.on('end', () => {
-        resolve(JSON.parse(data));
-      });
-    });
-
-    req.on('error', (error: any) => {
-      reject(error);
-    });
-
-    req.write(params);
-    req.end();
-  });
+    } catch (error) {
+      next(error);
+    }
+  }
 }
