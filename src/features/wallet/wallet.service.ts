@@ -3,6 +3,7 @@ import { Types } from 'mongoose';
 import crypto from 'crypto';
 import paystack from 'paystack';
 import config from '../../config/env.js';
+import { SMSService } from '../sms/sms.service';
 
 // Initialize Paystack client
 const paystackClient = paystack(config.PAYSTACK_SECRET_KEY || '');
@@ -90,11 +91,26 @@ export class WalletService {
     await (transaction as any).save();
 
     // Update wallet balance
-    await Wallet.findByIdAndUpdate(
+    const wallet = await Wallet.findByIdAndUpdate(
       transaction.walletId,
       { $inc: { balance: amount / 100 } }, // Paystack amount is in kobo
       { new: true }
     );
+
+    // Send SMS notification for successful deposit
+    if (wallet && customer?.phone) {
+      try {
+        await SMSService.sendWalletFundingNotification(
+          customer.phone,
+          amount / 100,
+          reference,
+          wallet.balance
+        );
+      } catch (smsError) {
+        console.error('Failed to send SMS notification:', smsError);
+        // Don't fail the transaction if SMS fails
+      }
+    }
   }
 
   // Handle failed charge
@@ -153,7 +169,13 @@ export class WalletService {
   }
 
   // Lock funds in escrow using MongoDB Transactions
-  static async lockEscrowFunds(walletId: Types.ObjectId, amount: number, jobId: Types.ObjectId): Promise<ITransaction> {
+  static async lockEscrowFunds(
+    walletId: Types.ObjectId,
+    amount: number,
+    jobId: Types.ObjectId,
+    phoneNumber?: string,
+    jobTitle?: string
+  ): Promise<ITransaction> {
     const session = await Wallet.startSession();
     
     try {
@@ -210,6 +232,16 @@ export class WalletService {
       await session.commitTransaction();
       session.endSession();
 
+      // Send SMS notification for escrow lock
+      if (phoneNumber && jobTitle) {
+        try {
+          await SMSService.sendEscrowLockNotification(phoneNumber, amount, jobTitle);
+        } catch (smsError) {
+          console.error('Failed to send SMS notification:', smsError);
+          // Don't fail the transaction if SMS fails
+        }
+      }
+
       return transaction;
     } catch (error: any) {
       // Abort transaction on error
@@ -225,7 +257,9 @@ export class WalletService {
     walletId: Types.ObjectId,
     jobId: Types.ObjectId,
     artisanAmount: number,
-    commissionAmount: number
+    commissionAmount: number,
+    phoneNumber?: string,
+    jobTitle?: string
   ): Promise<{ payoutTransaction: ITransaction; commissionTransaction: ITransaction }> {
     const session = await Wallet.startSession();
     
@@ -299,6 +333,16 @@ export class WalletService {
       // Commit transaction
       await session.commitTransaction();
       session.endSession();
+
+      // Send SMS notification for escrow release
+      if (phoneNumber && jobTitle) {
+        try {
+          await SMSService.sendEscrowReleaseNotification(phoneNumber, totalAmount, jobTitle);
+        } catch (smsError) {
+          console.error('Failed to send SMS notification:', smsError);
+          // Don't fail the transaction if SMS fails
+        }
+      }
 
       return { payoutTransaction, commissionTransaction };
     } catch (error: any) {

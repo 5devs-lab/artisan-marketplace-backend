@@ -15,6 +15,8 @@ interface EnvConfig {
   PAYSTACK_SECRET_KEY?: string;
   GMAIL_USER?: string;
   GMAIL_PASS?: string;
+  TERMII_API_KEY?: string;
+  TERMII_SENDER_ID?: string;
 }
 
 const getEnv = (): EnvConfig => {
@@ -29,6 +31,8 @@ const getEnv = (): EnvConfig => {
     PAYSTACK_SECRET_KEY: process.env.PAYSTACK_SECRET_KEY,
     GMAIL_USER: process.env.GMAIL_USER,
     GMAIL_PASS: process.env.GMAIL_PASS,
+    TERMII_API_KEY: process.env.TERMII_API_KEY,
+    TERMII_SENDER_ID: process.env.TERMII_SENDER_ID || 'Artisan',
   };
 
   const requiredVars: (keyof EnvConfig)[] = ['MONGO_URI', 'JWT_SECRET', 'JWT_PEPPER', 'SERVER_URL'];

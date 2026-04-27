@@ -155,7 +155,7 @@ export class WalletController {
   static async lockEscrowFunds(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
     try {
       const userId = req.user._id;
-      const { amount, jobId } = req.body;
+      const { amount, jobId, phoneNumber, jobTitle } = req.body;
 
       if (!amount || amount <= 0) {
         res.status(400).json({
@@ -177,7 +177,9 @@ export class WalletController {
       const transaction = await WalletService.lockEscrowFunds(
         wallet._id,
         amount,
-        new Types.ObjectId(jobId)
+        new Types.ObjectId(jobId),
+        phoneNumber,
+        jobTitle
       );
 
       res.status(200).json({
@@ -192,7 +194,7 @@ export class WalletController {
   // Release escrow funds (for job completion)
   static async releaseEscrowFunds(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
     try {
-      const { jobId, artisanAmount, commissionAmount } = req.body;
+      const { jobId, artisanAmount, commissionAmount, phoneNumber, jobTitle } = req.body;
 
       if (!jobId || !artisanAmount || commissionAmount === undefined) {
         res.status(400).json({
@@ -217,7 +219,9 @@ export class WalletController {
         wallet._id,
         new Types.ObjectId(jobId),
         artisanAmount,
-        commissionAmount
+        commissionAmount,
+        phoneNumber,
+        jobTitle
       );
 
       res.status(200).json({

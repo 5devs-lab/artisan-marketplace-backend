@@ -317,7 +317,7 @@
  * /api/wallet/escrow/lock:
  *   post:
  *     summary: Lock funds in escrow
- *     description: Lock funds in escrow for a job transaction using MongoDB transactions for atomic operations. All operations are atomic with automatic rollback on errors.
+ *     description: Lock funds in escrow for a job transaction using MongoDB transactions for atomic operations. All operations are atomic with automatic rollback on errors. SMS notification sent if phoneNumber provided.
  *     tags: [Wallet]
  *     security:
  *       - bearerAuth: []
@@ -340,6 +340,14 @@
  *                 type: string
  *                 description: Job ID for which funds are being locked
  *                 example: 507f1f77bcf86cd799439011
+ *               phoneNumber:
+ *                 type: string
+ *                 description: Phone number for SMS notification (optional)
+ *                 example: "+2348012345678"
+ *               jobTitle:
+ *                 type: string
+ *                 description: Job title for SMS notification (optional)
+ *                 example: "Plumbing Services"
  *     responses:
  *       200:
  *         description: Funds locked successfully
@@ -384,7 +392,7 @@
  * /api/wallet/escrow/release:
  *   post:
  *     summary: Release escrow funds
- *     description: Release escrow funds after job completion (splits into payout and commission). Wallet ID is automatically derived from authenticated user. Uses MongoDB transactions for atomic operations with automatic rollback on errors.
+ *     description: Release escrow funds after job completion (splits into payout and commission). Wallet ID is automatically derived from authenticated user. Uses MongoDB transactions for atomic operations with automatic rollback on errors. SMS notification sent if phoneNumber provided.
  *     tags: [Wallet]
  *     security:
  *       - bearerAuth: []
@@ -413,6 +421,14 @@
  *                 minimum: 0
  *                 description: Platform commission (5%)
  *                 example: 500
+ *               phoneNumber:
+ *                 type: string
+ *                 description: Phone number for SMS notification (optional)
+ *                 example: "+2348012345678"
+ *               jobTitle:
+ *                 type: string
+ *                 description: Job title for SMS notification (optional)
+ *                 example: "Plumbing Services"
  *     responses:
  *       200:
  *         description: Funds released successfully
