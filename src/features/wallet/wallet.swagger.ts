@@ -317,7 +317,7 @@
  * /api/wallet/escrow/lock:
  *   post:
  *     summary: Lock funds in escrow
- *     description: Lock funds in escrow for a job transaction
+ *     description: Lock funds in escrow for a job transaction using MongoDB transactions for atomic operations. All operations are atomic with automatic rollback on errors.
  *     tags: [Wallet]
  *     security:
  *       - bearerAuth: []
@@ -375,6 +375,8 @@
  *         description: Invalid amount or insufficient balance
  *       401:
  *         description: Unauthorized
+ *       500:
+ *         description: Transaction failed and rolled back
  */
 
 /**
@@ -382,7 +384,7 @@
  * /api/wallet/escrow/release:
  *   post:
  *     summary: Release escrow funds
- *     description: Release escrow funds after job completion (splits into payout and commission). Wallet ID is automatically derived from authenticated user.
+ *     description: Release escrow funds after job completion (splits into payout and commission). Wallet ID is automatically derived from authenticated user. Uses MongoDB transactions for atomic operations with automatic rollback on errors.
  *     tags: [Wallet]
  *     security:
  *       - bearerAuth: []
@@ -434,4 +436,6 @@
  *         description: Unauthorized
  *       404:
  *         description: Wallet not found
+ *       500:
+ *         description: Transaction failed and rolled back
  */

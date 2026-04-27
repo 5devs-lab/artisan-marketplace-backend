@@ -152,85 +152,162 @@ export class WalletService {
     }
   }
 
-  // Lock funds in escrow
+  // Lock funds in escrow using MongoDB Transactions
   static async lockEscrowFunds(walletId: Types.ObjectId, amount: number, jobId: Types.ObjectId): Promise<ITransaction> {
-    const wallet = await Wallet.findById(walletId);
-    if (!wallet) {
-      throw new Error('Wallet not found');
+    const session = await Wallet.startSession();
+    
+    try {
+      // Start transaction
+      session.startTransaction();
+
+      // Get wallet with session for transaction
+      const wallet = await Wallet.findById(walletId).session(session);
+      if (!wallet) {
+        await session.abortTransaction();
+        session.endSession();
+        throw new Error('Wallet not found');
+      }
+
+      // Check balance with transaction lock
+      if (wallet.balance < amount) {
+        await session.abortTransaction();
+        session.endSession();
+        throw new Error('Insufficient balance');
+      }
+
+      // Create escrow lock transaction within transaction
+      const transaction = new Transaction({
+        walletId,
+        amount,
+        type: TransactionType.ESCROW_LOCK,
+        status: 'PENDING',
+        referenceId: jobId,
+        metadata: {
+          description: `Funds locked for job ${jobId}`,
+          feeApplied: 0
+        }
+      });
+
+      await transaction.save({ session });
+
+      // Update wallet balances atomically
+      await Wallet.findByIdAndUpdate(
+        walletId,
+        {
+          $inc: {
+            balance: -amount,
+            escrowBalance: amount
+          }
+        },
+        { session, new: true }
+      );
+
+      // Mark transaction as successful
+      transaction.status = 'SUCCESS';
+      await transaction.save({ session });
+
+      // Commit transaction
+      await session.commitTransaction();
+      session.endSession();
+
+      return transaction;
+    } catch (error: any) {
+      // Abort transaction on error
+      await session.abortTransaction();
+      session.endSession();
+      console.error('Escrow lock transaction error:', error);
+      throw new Error(error.message || 'Failed to lock escrow funds');
     }
-
-    if (wallet.balance < amount) {
-      throw new Error('Insufficient balance');
-    }
-
-    // Create escrow lock transaction
-    const transaction = await this.createTransaction(
-      walletId,
-      amount,
-      TransactionType.ESCROW_LOCK,
-      jobId,
-      `Funds locked for job ${jobId}`
-    );
-
-    // Update wallet balances
-    wallet.balance -= amount;
-    wallet.escrowBalance += amount;
-    await wallet.save();
-
-    // Mark transaction as successful
-    transaction.status = 'SUCCESS';
-    await (transaction as any).save();
-
-    return transaction;
   }
 
-  // Release escrow funds (payout + commission)
+  // Release escrow funds (payout + commission) using MongoDB Transactions
   static async releaseEscrowFunds(
     walletId: Types.ObjectId,
     jobId: Types.ObjectId,
     artisanAmount: number,
     commissionAmount: number
   ): Promise<{ payoutTransaction: ITransaction; commissionTransaction: ITransaction }> {
-    const wallet = await Wallet.findById(walletId);
-    if (!wallet) {
-      throw new Error('Wallet not found');
+    const session = await Wallet.startSession();
+    
+    try {
+      // Start transaction
+      session.startTransaction();
+
+      // Get wallet with session for transaction
+      const wallet = await Wallet.findById(walletId).session(session);
+      if (!wallet) {
+        await session.abortTransaction();
+        session.endSession();
+        throw new Error('Wallet not found');
+      }
+
+      // Check escrow balance with transaction lock
+      const totalAmount = artisanAmount + commissionAmount;
+      if (wallet.escrowBalance < totalAmount) {
+        await session.abortTransaction();
+        session.endSession();
+        throw new Error('Insufficient escrow balance');
+      }
+
+      // Create payout transaction (95% to artisan) within transaction
+      const payoutTransaction = new Transaction({
+        walletId,
+        amount: artisanAmount,
+        type: TransactionType.PAYOUT,
+        status: 'PENDING',
+        referenceId: jobId,
+        metadata: {
+          description: `Payout for job completion - 95%`,
+          feeApplied: 0
+        }
+      });
+
+      await payoutTransaction.save({ session });
+
+      // Create commission transaction (5% to platform) within transaction
+      const commissionTransaction = new Transaction({
+        walletId,
+        amount: commissionAmount,
+        type: TransactionType.COMMISSION,
+        status: 'PENDING',
+        referenceId: jobId,
+        metadata: {
+          description: `Platform commission - 5%`,
+          feeApplied: commissionAmount
+        }
+      });
+
+      await commissionTransaction.save({ session });
+
+      // Update wallet balances atomically
+      await Wallet.findByIdAndUpdate(
+        walletId,
+        {
+          $inc: {
+            escrowBalance: -totalAmount
+          }
+        },
+        { session, new: true }
+      );
+
+      // Mark transactions as successful
+      payoutTransaction.status = 'SUCCESS';
+      commissionTransaction.status = 'SUCCESS';
+      await payoutTransaction.save({ session });
+      await commissionTransaction.save({ session });
+
+      // Commit transaction
+      await session.commitTransaction();
+      session.endSession();
+
+      return { payoutTransaction, commissionTransaction };
+    } catch (error: any) {
+      // Abort transaction on error
+      await session.abortTransaction();
+      session.endSession();
+      console.error('Escrow release transaction error:', error);
+      throw new Error(error.message || 'Failed to release escrow funds');
     }
-
-    if (wallet.escrowBalance < (artisanAmount + commissionAmount)) {
-      throw new Error('Insufficient escrow balance');
-    }
-
-    // Create payout transaction (95% to artisan)
-    const payoutTransaction = await this.createTransaction(
-      walletId,
-      artisanAmount,
-      TransactionType.PAYOUT,
-      jobId,
-      `Payout for job completion - 95%`,
-      0
-    );
-
-    // Create commission transaction (5% to platform)
-    const commissionTransaction = await this.createTransaction(
-      walletId,
-      commissionAmount,
-      TransactionType.COMMISSION,
-      jobId,
-      `Platform commission - 5%`,
-      commissionAmount
-    );
-
-    // Update wallet balances
-    wallet.escrowBalance -= (artisanAmount + commissionAmount);
-    await wallet.save();
-
-    // Mark transactions as successful
-    payoutTransaction.status = 'SUCCESS';
-    commissionTransaction.status = 'SUCCESS';
-    await (payoutTransaction as any).save();
-    await (commissionTransaction as any).save();
-
-    return { payoutTransaction, commissionTransaction };
   }
 
   // Get transaction history
