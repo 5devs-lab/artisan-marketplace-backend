@@ -3,7 +3,7 @@
   "info": {
     "title": "Artisan Service Marketplace API",
     "version": "1.0.0",
-    "description": "API documentation for the Artisan Service Backend (MVP) - Complete specification for Postman testing"
+    "description": "API documentation for the Artisan Service Backend (MVP)"
   },
   "servers": [
     {
@@ -16,14 +16,214 @@
       "bearerAuth": {
         "type": "http",
         "scheme": "bearer",
-        "bearerFormat": "JWT",
-        "description": "JWT token obtained from login endpoint"
+        "bearerFormat": "JWT"
       }
     },
     "schemas": {
+      "Job": {
+        "type": "object",
+        "required": [
+          "customerId",
+          "serviceId",
+          "title",
+          "description",
+          "location",
+          "budget"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "readOnly": true,
+            "description": "Auto-generated ID"
+          },
+          "customerId": {
+            "type": "string",
+            "description": "ID of the customer who created the job",
+            "example": "507f1f77bcf86cd799439011"
+          },
+          "serviceId": {
+            "type": "string",
+            "description": "ID of the service category",
+            "example": "507f1f77bcf86cd799439012"
+          },
+          "title": {
+            "type": "string",
+            "example": "Need electrical wiring for 3-bedroom apartment"
+          },
+          "description": {
+            "type": "string",
+            "example": "Complete electrical installation including sockets, switches, and lighting fixtures"
+          },
+          "location": {
+            "type": "string",
+            "example": "Ikeja, Lagos"
+          },
+          "budget": {
+            "type": "number",
+            "example": 150000
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "OPEN",
+              "NEGOTIATING",
+              "ACCEPTED",
+              "IN_PROGRESS",
+              "COMPLETED",
+              "CANCELLED",
+              "ESCROW_LOCKED",
+              "CLOSED"
+            ],
+            "default": "OPEN",
+            "example": "OPEN"
+          },
+          "acceptedQuoteId": {
+            "type": "string",
+            "nullable": true,
+            "description": "ID of the accepted quote"
+          },
+          "createdAt": {
+            "type": "string",
+            "readOnly": true,
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "readOnly": true,
+            "format": "date-time"
+          }
+        }
+      },
+      "Quote": {
+        "type": "object",
+        "required": [
+          "jobId",
+          "artisanId",
+          "price",
+          "description",
+          "estimatedDuration"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "readOnly": true,
+            "description": "Auto-generated ID"
+          },
+          "jobId": {
+            "type": "string",
+            "description": "ID of the job",
+            "example": "507f1f77bcf86cd799439013"
+          },
+          "artisanId": {
+            "type": "string",
+            "description": "ID of the artisan submitting the quote",
+            "example": "507f1f77bcf86cd799439014"
+          },
+          "price": {
+            "type": "number",
+            "example": 120000
+          },
+          "description": {
+            "type": "string",
+            "example": "Complete electrical installation with premium materials"
+          },
+          "estimatedDuration": {
+            "type": "string",
+            "example": "3 days"
+          },
+          "materials": {
+            "type": "string",
+            "example": "Includes all wiring, sockets, switches, and LED bulbs"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "PENDING",
+              "ACCEPTED",
+              "REJECTED",
+              "COUNTERED"
+            ],
+            "default": "PENDING",
+            "example": "PENDING"
+          },
+          "counterOffer": {
+            "type": "number",
+            "nullable": true,
+            "example": 110000
+          },
+          "createdAt": {
+            "type": "string",
+            "readOnly": true,
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "readOnly": true,
+            "format": "date-time"
+          }
+        }
+      },
+      "Review": {
+        "type": "object",
+        "required": [
+          "jobId",
+          "reviewerId",
+          "revieweeId",
+          "rating",
+          "comment"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "readOnly": true,
+            "description": "Auto-generated ID"
+          },
+          "jobId": {
+            "type": "string",
+            "description": "ID of the completed job",
+            "example": "507f1f77bcf86cd799439013"
+          },
+          "reviewerId": {
+            "type": "string",
+            "description": "ID of the user writing the review",
+            "example": "507f1f77bcf86cd799439011"
+          },
+          "revieweeId": {
+            "type": "string",
+            "description": "ID of the user being reviewed",
+            "example": "507f1f77bcf86cd799439014"
+          },
+          "rating": {
+            "type": "number",
+            "minimum": 1,
+            "maximum": 5,
+            "example": 5
+          },
+          "comment": {
+            "type": "string",
+            "example": "Excellent work! Very professional and completed on time."
+          },
+          "createdAt": {
+            "type": "string",
+            "readOnly": true,
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "readOnly": true,
+            "format": "date-time"
+          }
+        }
+      },
       "Service": {
         "type": "object",
-        "required": ["title", "description", "category", "basePrice", "location"],
+        "required": [
+          "title",
+          "description",
+          "category",
+          "basePrice",
+          "location"
+        ],
         "properties": {
           "id": {
             "type": "string",
@@ -53,7 +253,11 @@
           },
           "location": {
             "type": "object",
-            "required": ["address", "city", "state"],
+            "required": [
+              "address",
+              "city",
+              "state"
+            ],
             "properties": {
               "address": {
                 "type": "string",
@@ -74,7 +278,10 @@
             "items": {
               "type": "string"
             },
-            "example": ["https://example.com/p1.jpg", "https://example.com/p2.jpg"]
+            "example": [
+              "https://example.com/p1.jpg",
+              "https://example.com/p2.jpg"
+            ]
           },
           "isAvailable": {
             "type": "boolean",
@@ -86,177 +293,27 @@
             "format": "date-time"
           }
         }
-      },
-      "Wallet": {
-        "type": "object",
-        "properties": {
-          "_id": {
-            "type": "string"
-          },
-          "userId": {
-            "type": "string"
-          },
-          "balance": {
-            "type": "number"
-          },
-          "escrowBalance": {
-            "type": "number"
-          },
-          "currency": {
-            "type": "string"
-          },
-          "createdAt": {
-            "type": "string"
-          },
-          "updatedAt": {
-            "type": "string"
-          }
-        }
-      },
-      "Transaction": {
-        "type": "object",
-        "properties": {
-          "_id": {
-            "type": "string"
-          },
-          "walletId": {
-            "type": "string"
-          },
-          "amount": {
-            "type": "number"
-          },
-          "type": {
-            "type": "string",
-            "enum": ["DEPOSIT", "ESCROW_LOCK", "PAYOUT", "COMMISSION", "REFUND"]
-          },
-          "status": {
-            "type": "string",
-            "enum": ["PENDING", "SUCCESS", "FAILED"]
-          },
-          "referenceId": {
-            "type": "string"
-          },
-          "metadata": {
-            "type": "object",
-            "properties": {
-              "description": {
-                "type": "string"
-              },
-              "feeApplied": {
-                "type": "number"
-              }
-            }
-          },
-          "createdAt": {
-            "type": "string"
-          },
-          "updatedAt": {
-            "type": "string"
-          }
-        }
-      },
-      "ErrorResponse": {
-        "type": "object",
-        "properties": {
-          "success": {
-            "type": "boolean",
-            "example": false
-          },
-          "message": {
-            "type": "string"
-          }
-        }
-      },
-      "SuccessResponse": {
-        "type": "object",
-        "properties": {
-          "success": {
-            "type": "boolean",
-            "example": true
-          },
-          "data": {
-            "type": "object"
-          },
-          "message": {
-            "type": "string"
-          }
-        }
       }
     }
   },
-  "tags": [
-    {
-      "name": "Auth",
-      "description": "User Authentication and identity management"
-    },
-    {
-      "name": "Health",
-      "description": "System health checks"
-    },
-    {
-      "name": "Users",
-      "description": "User profile and management"
-    },
-    {
-      "name": "Services",
-      "description": "Artisan service management"
-    },
-    {
-      "name": "Wallet",
-      "description": "Wallet and payment management"
-    }
-  ],
   "paths": {
-    "/api/health": {
-      "get": {
-        "summary": "Health Check",
-        "tags": ["Health"],
-        "description": "Check if the server is alive and connected to the database.",
-        "responses": {
-          "200": {
-            "description": "Server is healthy",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "status": {
-                      "type": "string",
-                      "example": "OK"
-                    },
-                    "message": {
-                      "type": "string",
-                      "example": "Server is running"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Server error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/api/auth/register": {
       "post": {
         "summary": "Register a new user",
-        "tags": ["Auth"],
+        "tags": [
+          "Auth"
+        ],
         "requestBody": {
           "required": true,
           "content": {
             "application/json": {
               "schema": {
                 "type": "object",
-                "required": ["email", "password", "role"],
+                "required": [
+                  "email",
+                  "password",
+                  "role"
+                ],
                 "properties": {
                   "email": {
                     "type": "string",
@@ -268,7 +325,11 @@
                   },
                   "role": {
                     "type": "string",
-                    "enum": ["user", "artisan", "admin"],
+                    "enum": [
+                      "user",
+                      "artisan",
+                      "admin"
+                    ],
                     "example": "user"
                   },
                   "firstName": {
@@ -302,24 +363,10 @@
         },
         "responses": {
           "201": {
-            "description": "User registered successfully. Verification email sent.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/SuccessResponse"
-                }
-              }
-            }
+            "description": "User registered successfully. Verification email sent."
           },
           "400": {
-            "description": "Bad request / Password policy failed",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
+            "description": "Bad request / Password policy failed"
           }
         }
       }
@@ -327,14 +374,19 @@
     "/api/auth/verify-email": {
       "post": {
         "summary": "Verify email using OTP",
-        "tags": ["Auth"],
+        "tags": [
+          "Auth"
+        ],
         "requestBody": {
           "required": true,
           "content": {
             "application/json": {
               "schema": {
                 "type": "object",
-                "required": ["email", "otp"],
+                "required": [
+                  "email",
+                  "otp"
+                ],
                 "properties": {
                   "email": {
                     "type": "string",
@@ -351,24 +403,10 @@
         },
         "responses": {
           "200": {
-            "description": "Email verified successfully",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/SuccessResponse"
-                }
-              }
-            }
+            "description": "Email verified successfully"
           },
           "400": {
-            "description": "Invalid or expired OTP",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
+            "description": "Invalid or expired OTP"
           }
         }
       }
@@ -376,14 +414,19 @@
     "/api/auth/login": {
       "post": {
         "summary": "Login user",
-        "tags": ["Auth"],
+        "tags": [
+          "Auth"
+        ],
         "requestBody": {
           "required": true,
           "content": {
             "application/json": {
               "schema": {
                 "type": "object",
-                "required": ["email", "password"],
+                "required": [
+                  "email",
+                  "password"
+                ],
                 "properties": {
                   "email": {
                     "type": "string",
@@ -400,44 +443,16 @@
         },
         "responses": {
           "200": {
-            "description": "Login successful. Cookies will be set.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/SuccessResponse"
-                }
-              }
-            }
+            "description": "Login successful. Cookies will be set."
           },
           "401": {
-            "description": "Invalid credentials",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
+            "description": "Invalid credentials"
           },
           "403": {
-            "description": "Account not verified / IP Banned",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
+            "description": "Account not verified / IP Banned"
           },
           "429": {
-            "description": "Too many attempts",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
+            "description": "Too many attempts"
           }
         }
       }
@@ -445,28 +460,16 @@
     "/api/auth/refresh": {
       "post": {
         "summary": "Refresh Session",
-        "tags": ["Auth"],
+        "tags": [
+          "Auth"
+        ],
         "description": "Rotates access token using refreshToken cookie.",
         "responses": {
           "200": {
-            "description": "Access token refreshed",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/SuccessResponse"
-                }
-              }
-            }
+            "description": "Access token refreshed"
           },
           "401": {
-            "description": "Session expired",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
+            "description": "Session expired"
           }
         }
       }
@@ -474,17 +477,12 @@
     "/api/auth/logout": {
       "post": {
         "summary": "Logout",
-        "tags": ["Auth"],
+        "tags": [
+          "Auth"
+        ],
         "responses": {
           "200": {
-            "description": "Logged out successfully",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/SuccessResponse"
-                }
-              }
-            }
+            "description": "Logged out successfully"
           }
         }
       }
@@ -492,15 +490,23 @@
     "/api/auth/change-password": {
       "patch": {
         "summary": "Change Password",
-        "tags": ["Auth"],
-        "security": [{"bearerAuth": []}],
+        "tags": [
+          "Auth"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "requestBody": {
           "required": true,
           "content": {
             "application/json": {
               "schema": {
                 "type": "object",
-                "required": ["newPassword"],
+                "required": [
+                  "newPassword"
+                ],
                 "properties": {
                   "newPassword": {
                     "type": "string",
@@ -513,55 +519,189 @@
         },
         "responses": {
           "200": {
-            "description": "Password changed and all other sessions revoked",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/SuccessResponse"
-                }
-              }
-            }
+            "description": "Password changed and all other sessions revoked"
           },
           "401": {
-            "description": "Unauthorized",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
+            "description": "Unauthorized"
           }
         }
       }
     },
-    "/api/users/me": {
+    "/api/health": {
       "get": {
-        "summary": "Get Current User Profile",
-        "tags": ["Users"],
-        "security": [{"bearerAuth": []}],
-        "description": "Returns the profile data associated with the current session.",
+        "summary": "Health Check",
+        "tags": [
+          "Health"
+        ],
+        "description": "Check if the server is alive and connected to the database.",
         "responses": {
           "200": {
-            "description": "Profile data retrieved",
+            "description": "Server is healthy",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "user": {
-                      "type": "object",
-                      "properties": {
-                        "id": {"type": "string"},
-                        "email": {"type": "string"},
-                        "role": {"type": "string"},
-                        "firstName": {"type": "string"},
-                        "lastName": {"type": "string"},
-                        "nin": {"type": "string"},
-                        "phone": {"type": "string"},
-                        "stateOfOrigin": {"type": "string"},
-                        "nationality": {"type": "string"},
-                        "address": {"type": "string"}
+                    "status": {
+                      "type": "string",
+                      "example": "OK"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Server is running"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      }
+    },
+    "/api/jobs": {
+      "post": {
+        "summary": "Create a new job",
+        "tags": [
+          "Jobs"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "customerId",
+                  "serviceId",
+                  "title",
+                  "description",
+                  "location",
+                  "budget"
+                ],
+                "properties": {
+                  "customerId": {
+                    "type": "string",
+                    "example": "507f1f77bcf86cd799439011"
+                  },
+                  "serviceId": {
+                    "type": "string",
+                    "example": "507f1f77bcf86cd799439012"
+                  },
+                  "title": {
+                    "type": "string",
+                    "example": "Need electrical wiring for 3-bedroom apartment"
+                  },
+                  "description": {
+                    "type": "string",
+                    "example": "Complete electrical installation including sockets, switches, and lighting fixtures"
+                  },
+                  "location": {
+                    "type": "string",
+                    "example": "Ikeja, Lagos"
+                  },
+                  "budget": {
+                    "type": "number",
+                    "example": 150000
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Job created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Job created successfully"
+                    },
+                    "job": {
+                      "$ref": "#/components/schemas/Job"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request / validation failed"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      },
+      "get": {
+        "summary": "List all jobs with filters",
+        "tags": [
+          "Jobs"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "customerId",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Filter by customer ID"
+          },
+          {
+            "in": "query",
+            "name": "status",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "OPEN",
+                "NEGOTIATING",
+                "ACCEPTED",
+                "IN_PROGRESS",
+                "COMPLETED",
+                "CANCELLED",
+                "ESCROW_LOCKED",
+                "CLOSED"
+              ]
+            },
+            "description": "Filter by job status"
+          },
+          {
+            "in": "query",
+            "name": "serviceId",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Filter by service ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of jobs",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "jobs": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Job"
                       }
                     }
                   }
@@ -570,39 +710,100 @@
             }
           },
           "401": {
-            "description": "Unauthorized",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
+            "description": "Unauthorized"
           }
         }
       }
     },
-    "/api/users/profile": {
+    "/api/jobs/{id}": {
+      "get": {
+        "summary": "Get job details by ID",
+        "tags": [
+          "Jobs"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Job ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Job details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "job": {
+                      "$ref": "#/components/schemas/Job"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Job not found"
+          }
+        }
+      },
       "patch": {
-        "summary": "Update User Profile",
-        "tags": ["Users"],
-        "security": [{"bearerAuth": []}],
-        "description": "Updates the profile information for the current user. Only allowed fields are updated.",
+        "summary": "Update job details",
+        "tags": [
+          "Jobs"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Job ID"
+          }
+        ],
         "requestBody": {
-          "required": true,
           "content": {
             "application/json": {
               "schema": {
                 "type": "object",
                 "properties": {
-                  "firstName": {"type": "string"},
-                  "lastName": {"type": "string"},
-                  "gender": {"type": "string"},
-                  "phone": {"type": "string"},
-                  "stateOfOrigin": {"type": "string"},
-                  "nationality": {"type": "string"},
-                  "address": {"type": "string"},
-                  "nin": {"type": "string"}
+                  "title": {
+                    "type": "string",
+                    "example": "Updated job title"
+                  },
+                  "description": {
+                    "type": "string",
+                    "example": "Updated job description"
+                  },
+                  "location": {
+                    "type": "string",
+                    "example": "Lekki, Lagos"
+                  },
+                  "budget": {
+                    "type": "number",
+                    "example": 200000
+                  }
                 }
               }
             }
@@ -610,34 +811,1080 @@
         },
         "responses": {
           "200": {
-            "description": "Profile updated successfully",
+            "description": "Job updated successfully",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/SuccessResponse"
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Job updated successfully"
+                    },
+                    "job": {
+                      "$ref": "#/components/schemas/Job"
+                    }
+                  }
                 }
               }
             }
           },
           "400": {
-            "description": "Bad request / validation failed",
+            "description": "Bad request / validation failed"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Job not found"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete a job",
+        "tags": [
+          "Jobs"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Job ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Job deleted successfully",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Job deleted successfully"
+                    },
+                    "job": {
+                      "$ref": "#/components/schemas/Job"
+                    }
+                  }
                 }
               }
             }
           },
           "401": {
-            "description": "Unauthorized",
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Job not found"
+          }
+        }
+      }
+    },
+    "/api/jobs/{id}/quotes": {
+      "get": {
+        "summary": "Get all quotes for a specific job",
+        "tags": [
+          "Jobs"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Job ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of quotes for the job",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
+                  "type": "object",
+                  "properties": {
+                    "quotes": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Quote"
+                      }
+                    }
+                  }
                 }
               }
             }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Job not found"
+          }
+        }
+      }
+    },
+    "/api/jobs/{id}/start": {
+      "patch": {
+        "summary": "Start a job (requires escrow lock)",
+        "tags": [
+          "Jobs"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Job ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Job started successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Job started successfully"
+                    },
+                    "job": {
+                      "$ref": "#/components/schemas/Job"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request / escrow lock failed"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Job not found"
+          }
+        }
+      }
+    },
+    "/api/jobs/{id}/complete": {
+      "patch": {
+        "summary": "Mark job as completed",
+        "tags": [
+          "Jobs"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Job ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Job marked as completed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Job marked as completed"
+                    },
+                    "job": {
+                      "$ref": "#/components/schemas/Job"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Job not found"
+          }
+        }
+      }
+    },
+    "/api/jobs/{id}/confirm": {
+      "patch": {
+        "summary": "Confirm job completion and release payment",
+        "tags": [
+          "Jobs"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Job ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Job confirmed and closed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Job confirmed and closed"
+                    },
+                    "job": {
+                      "$ref": "#/components/schemas/Job"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Job not found"
+          }
+        }
+      }
+    },
+    "/api/quotes": {
+      "post": {
+        "summary": "Submit a quote for a job (Artisans only)",
+        "tags": [
+          "Quotes"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "jobId",
+                  "artisanId",
+                  "price",
+                  "description",
+                  "estimatedDuration"
+                ],
+                "properties": {
+                  "jobId": {
+                    "type": "string",
+                    "example": "507f1f77bcf86cd799439013"
+                  },
+                  "artisanId": {
+                    "type": "string",
+                    "example": "507f1f77bcf86cd799439014"
+                  },
+                  "price": {
+                    "type": "number",
+                    "example": 120000
+                  },
+                  "description": {
+                    "type": "string",
+                    "example": "Complete electrical installation with premium materials"
+                  },
+                  "estimatedDuration": {
+                    "type": "string",
+                    "example": "3 days"
+                  },
+                  "materials": {
+                    "type": "string",
+                    "example": "Includes all wiring, sockets, switches, and LED bulbs"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Quote created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Quote created successfully"
+                    },
+                    "quote": {
+                      "$ref": "#/components/schemas/Quote"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request / validation failed / job not open for quoting"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden (Not an artisan)"
+          }
+        }
+      }
+    },
+    "/api/quotes/{id}": {
+      "get": {
+        "summary": "Get quote details by ID",
+        "tags": [
+          "Quotes"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Quote ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Quote details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "quote": {
+                      "$ref": "#/components/schemas/Quote"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Quote not found"
+          }
+        }
+      },
+      "patch": {
+        "summary": "Update quote details",
+        "tags": [
+          "Quotes"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Quote ID"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "price": {
+                    "type": "number",
+                    "example": 130000
+                  },
+                  "description": {
+                    "type": "string",
+                    "example": "Updated description with additional services"
+                  },
+                  "estimatedDuration": {
+                    "type": "string",
+                    "example": "4 days"
+                  },
+                  "materials": {
+                    "type": "string",
+                    "example": "Updated materials list"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Quote updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Quote updated successfully"
+                    },
+                    "quote": {
+                      "$ref": "#/components/schemas/Quote"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request / cannot edit accepted quote"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Quote not found"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete a quote",
+        "tags": [
+          "Quotes"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Quote ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Quote deleted successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Quote deleted successfully"
+                    },
+                    "quote": {
+                      "$ref": "#/components/schemas/Quote"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request / cannot delete accepted quote"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Quote not found"
+          }
+        }
+      }
+    },
+    "/api/quotes/{id}/accept": {
+      "post": {
+        "summary": "Accept a quote (Customer only)",
+        "tags": [
+          "Quotes"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Quote ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Quote accepted successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Quote accepted successfully"
+                    },
+                    "quote": {
+                      "$ref": "#/components/schemas/Quote"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request / quote cannot be accepted in current state"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Quote not found"
+          }
+        }
+      }
+    },
+    "/api/quotes/{id}/reject": {
+      "post": {
+        "summary": "Reject a quote (Customer only)",
+        "tags": [
+          "Quotes"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Quote ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Quote rejected successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Quote rejected successfully"
+                    },
+                    "quote": {
+                      "$ref": "#/components/schemas/Quote"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request / cannot reject accepted quote"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Quote not found"
+          }
+        }
+      }
+    },
+    "/api/quotes/{id}/counter": {
+      "post": {
+        "summary": "Submit a counter offer (Customer only)",
+        "tags": [
+          "Quotes"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Quote ID"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "counterPrice"
+                ],
+                "properties": {
+                  "counterPrice": {
+                    "type": "number",
+                    "example": 110000
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Counter offer submitted successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Counter offer submitted successfully"
+                    },
+                    "quote": {
+                      "$ref": "#/components/schemas/Quote"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request / cannot counter accepted quote"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Quote not found"
+          }
+        }
+      }
+    },
+    "/api/reviews": {
+      "post": {
+        "summary": "Create a review for a completed job",
+        "tags": [
+          "Reviews"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "jobId",
+                  "reviewerId",
+                  "revieweeId",
+                  "rating",
+                  "comment"
+                ],
+                "properties": {
+                  "jobId": {
+                    "type": "string",
+                    "example": "507f1f77bcf86cd799439013"
+                  },
+                  "reviewerId": {
+                    "type": "string",
+                    "example": "507f1f77bcf86cd799439011"
+                  },
+                  "revieweeId": {
+                    "type": "string",
+                    "example": "507f1f77bcf86cd799439014"
+                  },
+                  "rating": {
+                    "type": "number",
+                    "minimum": 1,
+                    "maximum": 5,
+                    "example": 5
+                  },
+                  "comment": {
+                    "type": "string",
+                    "example": "Excellent work! Very professional and completed on time."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Review created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Review created successfully"
+                    },
+                    "review": {
+                      "$ref": "#/components/schemas/Review"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request / validation failed / job not completed"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/api/reviews/artisan/{id}/reviews": {
+      "get": {
+        "summary": "Get all reviews for a specific artisan",
+        "tags": [
+          "Reviews"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Artisan ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of reviews for the artisan",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "reviews": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Review"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/api/reviews/artisan/{id}/average-rating": {
+      "get": {
+        "summary": "Get average rating for a specific artisan",
+        "tags": [
+          "Reviews"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Artisan ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Average rating",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "averageRating": {
+                      "type": "number",
+                      "example": 4.5
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/api/reviews/{id}": {
+      "get": {
+        "summary": "Get review details by ID",
+        "tags": [
+          "Reviews"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Review ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Review details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "review": {
+                      "$ref": "#/components/schemas/Review"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Review not found"
+          }
+        }
+      },
+      "patch": {
+        "summary": "Update review details",
+        "tags": [
+          "Reviews"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Review ID"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "rating": {
+                    "type": "number",
+                    "minimum": 1,
+                    "maximum": 5,
+                    "example": 4
+                  },
+                  "comment": {
+                    "type": "string",
+                    "example": "Updated comment with more details"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Review updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Review updated successfully"
+                    },
+                    "review": {
+                      "$ref": "#/components/schemas/Review"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request / validation failed"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Review not found"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete a review",
+        "tags": [
+          "Reviews"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Review ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Review deleted successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Review deleted successfully"
+                    },
+                    "review": {
+                      "$ref": "#/components/schemas/Review"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Review not found"
           }
         }
       }
@@ -645,8 +1892,14 @@
     "/api/services": {
       "post": {
         "summary": "Create a new service (Artisans only)",
-        "tags": ["Services"],
-        "security": [{"bearerAuth": []}],
+        "tags": [
+          "Services"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "requestBody": {
           "required": true,
           "content": {
@@ -659,83 +1912,71 @@
         },
         "responses": {
           "201": {
-            "description": "Service created successfully",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/SuccessResponse"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden (Not an artisan)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
+            "description": "Service created successfully"
           },
           "401": {
-            "description": "Unauthorized",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden (Not an artisan)"
           }
         }
       },
       "get": {
         "summary": "List all services with filters",
-        "tags": ["Services"],
+        "tags": [
+          "Services"
+        ],
         "parameters": [
           {
             "in": "query",
             "name": "category",
-            "schema": {"type": "string"}
+            "schema": {
+              "type": "string"
+            }
           },
           {
             "in": "query",
             "name": "city",
-            "schema": {"type": "string"}
+            "schema": {
+              "type": "string"
+            }
           },
           {
             "in": "query",
             "name": "state",
-            "schema": {"type": "string"}
+            "schema": {
+              "type": "string"
+            }
           },
           {
             "in": "query",
             "name": "search",
-            "schema": {"type": "string"},
+            "schema": {
+              "type": "string"
+            },
             "description": "Full-text search on title and description"
           },
           {
             "in": "query",
             "name": "page",
-            "schema": {"type": "integer", "default": 1}
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
           },
           {
             "in": "query",
             "name": "limit",
-            "schema": {"type": "integer", "default": 10}
+            "schema": {
+              "type": "integer",
+              "default": 10
+            }
           }
         ],
         "responses": {
           "200": {
-            "description": "List of services",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/SuccessResponse"
-                }
-              }
-            }
+            "description": "List of services"
           }
         }
       }
@@ -743,48 +1984,46 @@
     "/api/services/{id}": {
       "get": {
         "summary": "Get service details by ID",
-        "tags": ["Services"],
+        "tags": [
+          "Services"
+        ],
         "parameters": [
           {
             "in": "path",
             "name": "id",
             "required": true,
-            "schema": {"type": "string"}
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
           "200": {
-            "description": "Service details",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/SuccessResponse"
-                }
-              }
-            }
+            "description": "Service details"
           },
           "404": {
-            "description": "Service not found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
+            "description": "Service not found"
           }
         }
       },
       "patch": {
         "summary": "Update an existing service (Owner only)",
-        "tags": ["Services"],
-        "security": [{"bearerAuth": []}],
+        "tags": [
+          "Services"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "parameters": [
           {
             "in": "path",
             "name": "id",
             "required": true,
-            "schema": {"type": "string"}
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "requestBody": {
@@ -798,37 +2037,31 @@
         },
         "responses": {
           "200": {
-            "description": "Service updated",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/SuccessResponse"
-                }
-              }
-            }
+            "description": "Service updated"
           },
           "403": {
-            "description": "Forbidden (Not the owner)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
+            "description": "Forbidden (Not the owner)"
           }
         }
       },
       "delete": {
         "summary": "Delete a service (Owner only)",
-        "tags": ["Services"],
-        "security": [{"bearerAuth": []}],
+        "tags": [
+          "Services"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "parameters": [
           {
             "in": "path",
             "name": "id",
             "required": true,
-            "schema": {"type": "string"}
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -836,14 +2069,149 @@
             "description": "Service deleted"
           },
           "403": {
-            "description": "Forbidden (Not the owner)",
+            "description": "Forbidden (Not the owner)"
+          }
+        }
+      }
+    },
+    "/api/users/me": {
+      "get": {
+        "summary": "Get Current User Profile",
+        "tags": [
+          "Users"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "description": "Returns the profile data associated with the current session.",
+        "responses": {
+          "200": {
+            "description": "Profile data retrieved",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
+                  "type": "object",
+                  "properties": {
+                    "user": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "email": {
+                          "type": "string"
+                        },
+                        "role": {
+                          "type": "string"
+                        },
+                        "firstName": {
+                          "type": "string"
+                        },
+                        "lastName": {
+                          "type": "string"
+                        },
+                        "nin": {
+                          "type": "string"
+                        },
+                        "phone": {
+                          "type": "string"
+                        },
+                        "stateOfOrigin": {
+                          "type": "string"
+                        },
+                        "nationality": {
+                          "type": "string"
+                        },
+                        "address": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
                 }
               }
             }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/api/users/profile": {
+      "patch": {
+        "summary": "Update User Profile",
+        "tags": [
+          "Users"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "description": "Updates the profile information for the current user. Only allowed fields are updated.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "firstName": {
+                    "type": "string"
+                  },
+                  "lastName": {
+                    "type": "string"
+                  },
+                  "gender": {
+                    "type": "string"
+                  },
+                  "phone": {
+                    "type": "string"
+                  },
+                  "stateOfOrigin": {
+                    "type": "string"
+                  },
+                  "nationality": {
+                    "type": "string"
+                  },
+                  "address": {
+                    "type": "string"
+                  },
+                  "nin": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Profile updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    },
+                    "user": {
+                      "type": "object"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request / validation failed"
+          },
+          "401": {
+            "description": "Unauthorized"
           }
         }
       }
@@ -852,8 +2220,14 @@
       "get": {
         "summary": "Get user wallet",
         "description": "Retrieve authenticated user's wallet information including balance and escrow balance",
-        "tags": ["Wallet"],
-        "security": [{"bearerAuth": []}],
+        "tags": [
+          "Wallet"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "responses": {
           "200": {
             "description": "Wallet retrieved successfully",
@@ -862,9 +2236,34 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "success": {"type": "boolean"},
+                    "success": {
+                      "type": "boolean"
+                    },
                     "data": {
-                      "$ref": "#/components/schemas/Wallet"
+                      "type": "object",
+                      "properties": {
+                        "_id": {
+                          "type": "string"
+                        },
+                        "userId": {
+                          "type": "string"
+                        },
+                        "balance": {
+                          "type": "number"
+                        },
+                        "escrowBalance": {
+                          "type": "number"
+                        },
+                        "currency": {
+                          "type": "string"
+                        },
+                        "createdAt": {
+                          "type": "string"
+                        },
+                        "updatedAt": {
+                          "type": "string"
+                        }
+                      }
                     }
                   }
                 }
@@ -872,14 +2271,7 @@
             }
           },
           "401": {
-            "description": "Unauthorized",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
+            "description": "Unauthorized"
           }
         }
       }
@@ -888,22 +2280,34 @@
       "get": {
         "summary": "Get transaction history",
         "description": "Retrieve paginated transaction history for authenticated user",
-        "tags": ["Wallet"],
-        "security": [{"bearerAuth": []}],
+        "tags": [
+          "Wallet"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "parameters": [
           {
             "in": "query",
             "name": "page",
             "description": "Page number",
             "required": false,
-            "schema": {"type": "integer", "default": 1}
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
           },
           {
             "in": "query",
             "name": "limit",
             "description": "Number of transactions per page",
             "required": false,
-            "schema": {"type": "integer", "default": 20}
+            "schema": {
+              "type": "integer",
+              "default": 20
+            }
           }
         ],
         "responses": {
@@ -914,19 +2318,76 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "success": {"type": "boolean"},
+                    "success": {
+                      "type": "boolean"
+                    },
                     "data": {
                       "type": "object",
                       "properties": {
                         "transactions": {
                           "type": "array",
                           "items": {
-                            "$ref": "#/components/schemas/Transaction"
+                            "type": "object",
+                            "properties": {
+                              "_id": {
+                                "type": "string"
+                              },
+                              "walletId": {
+                                "type": "string"
+                              },
+                              "amount": {
+                                "type": "number"
+                              },
+                              "type": {
+                                "type": "string",
+                                "enum": [
+                                  "DEPOSIT",
+                                  "ESCROW_LOCK",
+                                  "PAYOUT",
+                                  "COMMISSION",
+                                  "REFUND"
+                                ]
+                              },
+                              "status": {
+                                "type": "string",
+                                "enum": [
+                                  "PENDING",
+                                  "SUCCESS",
+                                  "FAILED"
+                                ]
+                              },
+                              "referenceId": {
+                                "type": "string"
+                              },
+                              "metadata": {
+                                "type": "object",
+                                "properties": {
+                                  "description": {
+                                    "type": "string"
+                                  },
+                                  "feeApplied": {
+                                    "type": "number"
+                                  }
+                                }
+                              },
+                              "createdAt": {
+                                "type": "string"
+                              },
+                              "updatedAt": {
+                                "type": "string"
+                              }
+                            }
                           }
                         },
-                        "total": {"type": "integer"},
-                        "page": {"type": "integer"},
-                        "pages": {"type": "integer"}
+                        "total": {
+                          "type": "integer"
+                        },
+                        "page": {
+                          "type": "integer"
+                        },
+                        "pages": {
+                          "type": "integer"
+                        }
                       }
                     }
                   }
@@ -935,14 +2396,7 @@
             }
           },
           "401": {
-            "description": "Unauthorized",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
+            "description": "Unauthorized"
           }
         }
       }
@@ -951,15 +2405,23 @@
       "post": {
         "summary": "Initialize deposit",
         "description": "Initialize a deposit transaction via Paystack using enhanced SDK integration",
-        "tags": ["Wallet"],
-        "security": [{"bearerAuth": []}],
+        "tags": [
+          "Wallet"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "requestBody": {
           "required": true,
           "content": {
             "application/json": {
               "schema": {
                 "type": "object",
-                "required": ["amount"],
+                "required": [
+                  "amount"
+                ],
                 "properties": {
                   "amount": {
                     "type": "number",
@@ -980,14 +2442,24 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "success": {"type": "boolean"},
+                    "success": {
+                      "type": "boolean"
+                    },
                     "data": {
                       "type": "object",
                       "properties": {
-                        "authorization_url": {"type": "string"},
-                        "reference": {"type": "string"},
-                        "access_code": {"type": "string"},
-                        "transactionId": {"type": "string"}
+                        "authorization_url": {
+                          "type": "string"
+                        },
+                        "reference": {
+                          "type": "string"
+                        },
+                        "access_code": {
+                          "type": "string"
+                        },
+                        "transactionId": {
+                          "type": "string"
+                        }
                       }
                     }
                   }
@@ -996,24 +2468,10 @@
             }
           },
           "400": {
-            "description": "Invalid amount",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
+            "description": "Invalid amount"
           },
           "401": {
-            "description": "Unauthorized",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
+            "description": "Unauthorized"
           }
         }
       }
@@ -1022,14 +2480,22 @@
       "get": {
         "summary": "Verify payment status",
         "description": "Verify the status of a Paystack payment using the reference",
-        "tags": ["Wallet"],
-        "security": [{"bearerAuth": []}],
+        "tags": [
+          "Wallet"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "parameters": [
           {
             "in": "path",
             "name": "reference",
             "required": true,
-            "schema": {"type": "string"},
+            "schema": {
+              "type": "string"
+            },
             "description": "Paystack transaction reference",
             "example": "DEP_1714567890_abc123_456789"
           }
@@ -1042,15 +2508,27 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "success": {"type": "boolean"},
+                    "success": {
+                      "type": "boolean"
+                    },
                     "data": {
                       "type": "object",
                       "properties": {
-                        "status": {"type": "string"},
-                        "reference": {"type": "string"},
-                        "amount": {"type": "number"},
-                        "paid_at": {"type": "string"},
-                        "customer": {"type": "object"}
+                        "status": {
+                          "type": "string"
+                        },
+                        "reference": {
+                          "type": "string"
+                        },
+                        "amount": {
+                          "type": "number"
+                        },
+                        "paid_at": {
+                          "type": "string"
+                        },
+                        "customer": {
+                          "type": "object"
+                        }
                       }
                     }
                   }
@@ -1059,34 +2537,13 @@
             }
           },
           "400": {
-            "description": "Invalid reference",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
+            "description": "Invalid reference"
           },
           "401": {
-            "description": "Unauthorized",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
+            "description": "Unauthorized"
           },
           "404": {
-            "description": "Payment not found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
+            "description": "Payment not found"
           }
         }
       }
@@ -1095,14 +2552,22 @@
       "get": {
         "summary": "Get transaction status",
         "description": "Retrieve the status and details of a specific wallet transaction",
-        "tags": ["Wallet"],
-        "security": [{"bearerAuth": []}],
+        "tags": [
+          "Wallet"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "parameters": [
           {
             "in": "path",
             "name": "transactionId",
             "required": true,
-            "schema": {"type": "string"},
+            "schema": {
+              "type": "string"
+            },
             "description": "Wallet transaction ID",
             "example": "507f1f77bcf86cd799439011"
           }
@@ -1115,9 +2580,52 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "success": {"type": "boolean"},
+                    "success": {
+                      "type": "boolean"
+                    },
                     "data": {
-                      "$ref": "#/components/schemas/Transaction"
+                      "type": "object",
+                      "properties": {
+                        "_id": {
+                          "type": "string"
+                        },
+                        "walletId": {
+                          "type": "string"
+                        },
+                        "amount": {
+                          "type": "number"
+                        },
+                        "type": {
+                          "type": "string",
+                          "enum": [
+                            "DEPOSIT",
+                            "ESCROW_LOCK",
+                            "PAYOUT",
+                            "COMMISSION",
+                            "REFUND"
+                          ]
+                        },
+                        "status": {
+                          "type": "string",
+                          "enum": [
+                            "PENDING",
+                            "SUCCESS",
+                            "FAILED"
+                          ]
+                        },
+                        "referenceId": {
+                          "type": "string"
+                        },
+                        "metadata": {
+                          "type": "object"
+                        },
+                        "createdAt": {
+                          "type": "string"
+                        },
+                        "updatedAt": {
+                          "type": "string"
+                        }
+                      }
                     }
                   }
                 }
@@ -1125,34 +2633,13 @@
             }
           },
           "400": {
-            "description": "Invalid transaction ID",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
+            "description": "Invalid transaction ID"
           },
           "401": {
-            "description": "Unauthorized",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
+            "description": "Unauthorized"
           },
           "404": {
-            "description": "Transaction not found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
+            "description": "Transaction not found"
           }
         }
       }
@@ -1161,7 +2648,9 @@
       "post": {
         "summary": "Paystack webhook handler",
         "description": "Handle Paystack webhooks for payment notifications",
-        "tags": ["Wallet"],
+        "tags": [
+          "Wallet"
+        ],
         "requestBody": {
           "required": true,
           "content": {
@@ -1169,8 +2658,12 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "event": {"type": "string"},
-                  "data": {"type": "object"}
+                  "event": {
+                    "type": "string"
+                  },
+                  "data": {
+                    "type": "object"
+                  }
                 }
               }
             }
@@ -1184,22 +2677,19 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "success": {"type": "boolean"},
-                    "message": {"type": "string"}
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
                   }
                 }
               }
             }
           },
           "401": {
-            "description": "Invalid webhook signature",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
+            "description": "Invalid webhook signature"
           }
         }
       }
@@ -1208,15 +2698,24 @@
       "post": {
         "summary": "Lock funds in escrow",
         "description": "Lock funds in escrow for a job transaction using MongoDB transactions for atomic operations. All operations are atomic with automatic rollback on errors. SMS notification sent if phoneNumber provided.",
-        "tags": ["Wallet"],
-        "security": [{"bearerAuth": []}],
+        "tags": [
+          "Wallet"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "requestBody": {
           "required": true,
           "content": {
             "application/json": {
               "schema": {
                 "type": "object",
-                "required": ["amount", "jobId"],
+                "required": [
+                  "amount",
+                  "jobId"
+                ],
                 "properties": {
                   "amount": {
                     "type": "number",
@@ -1252,9 +2751,40 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "success": {"type": "boolean"},
+                    "success": {
+                      "type": "boolean"
+                    },
                     "data": {
-                      "$ref": "#/components/schemas/Transaction"
+                      "type": "object",
+                      "properties": {
+                        "_id": {
+                          "type": "string"
+                        },
+                        "walletId": {
+                          "type": "string"
+                        },
+                        "amount": {
+                          "type": "number"
+                        },
+                        "type": {
+                          "type": "string"
+                        },
+                        "status": {
+                          "type": "string"
+                        },
+                        "referenceId": {
+                          "type": "string"
+                        },
+                        "metadata": {
+                          "type": "object"
+                        },
+                        "createdAt": {
+                          "type": "string"
+                        },
+                        "updatedAt": {
+                          "type": "string"
+                        }
+                      }
                     }
                   }
                 }
@@ -1262,34 +2792,13 @@
             }
           },
           "400": {
-            "description": "Invalid amount or insufficient balance",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
+            "description": "Invalid amount or insufficient balance"
           },
           "401": {
-            "description": "Unauthorized",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
+            "description": "Unauthorized"
           },
           "500": {
-            "description": "Transaction failed and rolled back",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
+            "description": "Transaction failed and rolled back"
           }
         }
       }
@@ -1298,15 +2807,25 @@
       "post": {
         "summary": "Release escrow funds",
         "description": "Release escrow funds after job completion (splits into payout and commission). Wallet ID is automatically derived from authenticated user. Uses MongoDB transactions for atomic operations with automatic rollback on errors. SMS notification sent if phoneNumber provided.",
-        "tags": ["Wallet"],
-        "security": [{"bearerAuth": []}],
+        "tags": [
+          "Wallet"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "requestBody": {
           "required": true,
           "content": {
             "application/json": {
               "schema": {
                 "type": "object",
-                "required": ["jobId", "artisanAmount", "commissionAmount"],
+                "required": [
+                  "jobId",
+                  "artisanAmount",
+                  "commissionAmount"
+                ],
                 "properties": {
                   "jobId": {
                     "type": "string",
@@ -1348,15 +2867,17 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "success": {"type": "boolean"},
+                    "success": {
+                      "type": "boolean"
+                    },
                     "data": {
                       "type": "object",
                       "properties": {
                         "payoutTransaction": {
-                          "$ref": "#/components/schemas/Transaction"
+                          "type": "object"
                         },
                         "commissionTransaction": {
-                          "$ref": "#/components/schemas/Transaction"
+                          "type": "object"
                         }
                       }
                     }
@@ -1366,47 +2887,49 @@
             }
           },
           "400": {
-            "description": "Missing required fields or insufficient escrow balance",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
+            "description": "Missing required fields or insufficient escrow balance"
           },
           "401": {
-            "description": "Unauthorized",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
+            "description": "Unauthorized"
           },
           "404": {
-            "description": "Wallet not found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
+            "description": "Wallet not found"
           },
           "500": {
-            "description": "Transaction failed and rolled back",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
+            "description": "Transaction failed and rolled back"
           }
         }
       }
     }
-  }
+  },
+  "tags": [
+    {
+      "name": "Auth",
+      "description": "User Authentication and identity management"
+    },
+    {
+      "name": "Jobs",
+      "description": "Job management and lifecycle"
+    },
+    {
+      "name": "Quotes",
+      "description": "Quote negotiation and management"
+    },
+    {
+      "name": "Reviews",
+      "description": "Review and rating management"
+    },
+    {
+      "name": "Services",
+      "description": "Artisan service management"
+    },
+    {
+      "name": "Users",
+      "description": "User profile and management"
+    },
+    {
+      "name": "Wallet",
+      "description": "Wallet and payment management"
+    }
+  ]
 }

@@ -10,6 +10,9 @@ import authRouter from './features/auth/auth.routes.js';
 import userRouter from './features/user/user.routes.js';
 import serviceRouter from './features/service/service.routes.js';
 import walletRouter from './features/wallet/wallet.routes.js';
+import jobRouter from './features/jobs/job.routes.js';
+import quoteRouter from './features/quotes/quote.routes.js';
+import reviewRouter from './features/reviews/review.routes.js';
 
 const app = express();
 
@@ -32,6 +35,9 @@ app.use('/api/auth', authRouter);
 app.use('/api/users', userRouter);
 app.use('/api/services', serviceRouter);
 app.use('/api/wallet', walletRouter);
+app.use('/api/jobs', jobRouter);
+app.use('/api/quotes', quoteRouter);
+app.use('/api/reviews', reviewRouter);
 
 // Error Handling
 app.use((err: any, req: Request, res: Response, next: NextFunction) => {
